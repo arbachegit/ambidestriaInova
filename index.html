@@ -32,7 +32,7 @@
           character: "Ravi",
           text: "Pessoal, eu não gosto muito do nosso chefe. Ele está sempre estressado e pressionando. Não sei se é justa a pressão que ele faz.",
         },
-        //Pergunta 2
+        //Pergunta 1
         {
           character: "Ana",
           text: "Mas, sem pressão, não atingimos as metas e não ganhamos bônus. Eu quero muito viajar para fora do Brasil este ano.",
@@ -50,7 +50,7 @@
         //Pergunta 5
         {
           character: "Ana",
-          text: "Tá maluca, Cris? A semana foi cheia de desafios e mudanças. A gente precisa relaxar!",
+          text: "Tá maluca, Cris? A semana foi cheia de desafios e mudanças. A gente precisa relaxar! Em vez de ficar sentadas, vamos para a balada!",
         },
         //Pergunta 6
         {
@@ -132,7 +132,7 @@
         //Intervenção 1
         "O chefe, Marcos, está pressionando muito a turma por resultados 📊. Vive falando de qualidade de vida nas redes sociais, mas, no dia a dia, é uma máquina de pressão.",
         //Intervenção 2
-        "A Ana quer muito viajar e para isto, quer alcançar resultados. A Ana está pensando de forma objetiva no resultado dela? 🤔",
+        "A Ana quer muito viajar e para isto, quer alcançar resultados. Vamos ver o que o Ravi e a Cris pensam? 🤔",
         //Intervenção 3
         "O Ravi está sempre mudando de ideias, principalmente quando a Cris fala algo 🤣",
         //Intervenção 4
@@ -319,7 +319,9 @@
           </div>
         );
       }
+      //finaliza o gráfico
 
+      
       function ChatInterface() {
         // Load saved user data on component mount
         const savedUserData = localStorage.getItem("userData");
@@ -332,12 +334,12 @@
         const [messages, setMessages] = useState([
           {
             character: "RiskBot",
-            text: "Olá, meu nome é RiskBot. Sou uma IA 🤖 muito esperta! Nossos heróis Ravi, Ana e Cris irão discutir alguns dilemas.",
+            text: "Olá, meu nome é RiskBot. Sou uma IA 🤖 muito esperta! Nossos personagens Ravi, Ana e Cris irão discutir alguns dilemas.",
             isFirstMessage: true,
           },
           {
             character: "RiskBot",
-            text: "Vamos ajudar Cris, Ana e Ravi a achar os melhores caminhos🚦?? ‼️ Uma dica: Responda sempre aquilo que considerar mais interessante, de acordo com sua visão.",
+            text: "Vamos ajudar Cris, Ana e Ravi a achar os melhores caminhos🚦?? ‼️ Responda aquilo que considerar mais interessante. Não existe certo ou errado.",
             showButton: true,
           },
         ]);
@@ -355,6 +357,7 @@
         const [showRiskbotDialog, setShowRiskbotDialog] = useState(false);
         const [riskbotDialogContent, setRiskbotDialogContent] = useState("");
         const [showFinalMessage, setShowFinalMessage] = useState(false);
+        const [showRulesModal, setShowRulesModal] = useState(false);
 
         const chatContainerRef = useRef(null);
 
@@ -486,31 +489,50 @@
             setConversationStarted(true);
             addMessage(
               "RiskBot",
-              `Olá ${userData.name} da ${userData.company}! Vamos começar nossa conversa? Ana, Cris e Ravi estão discutindo a respeito da vida deles. Estão falando de vida profissional e pessoal, tudo junto e misturado 🤪.`,
+              <span dangerouslySetInnerHTML={{
+                  __html: `Olá <strong>${userData.name}</strong> da <strong>${userData.company}</strong>! Vamos começar nossa conversa? Ana, Cris e Ravi estão discutindo a respeito da vida deles. Estão falando de vida profissional e pessoal, tudo junto e misturado 🤪.`,
+                }}
+              />,
             );
+          
+
+            //inicia a conversa 
             setIsTyping(true);
             setTimeout(() => {
               setIsTyping(false);
               addMessage(
                 "RiskBot",
-                "Primeiro, essa turma irá começar a discutir a respeito das complexidades do trabalho. 👩🏻‍💻",
+                "Primeiro, essa turma ira começar a discutir a respeito das complexidades do trabalho. 👩🏻‍💻",
               );
+
+              // Add new dialog for rules
+              addMessage(
+                "RiskBot",
+                React.createElement("div", null,
+                  "Antes de continuarmos, leia as regras do nosso bate-papo:",
+                  React.createElement("button", {
+                    onClick: () => setShowRulesModal(true),
+                    className: "mt-2 block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                  }, "Ver Regras")
+                )
+              );
+                  //finaliza a mensagem de regras
               setIsTyping(true);
               setTimeout(() => {
                 setIsTyping(false);
-                simulateTyping(0);
-              }, 1000);
-            }, 1000);
+               
+              }, 3000);
+            }, 3000);
           } catch (error) {
-            console.error("Erro ao processar o formulário:", error);
+            console.error("Erro ao processar o formulario:", error);
             addMessage(
               "RiskBot",
-              "Desculpe, ocorreu um erro ao processar suas informações. Por favor, tente novamente.",
+              "Desculpe, ocorreu um erro ao processar suas info. Por favor, tente novamente.",
             );
             setShowUserForm(true);
           }
         };
-
+        
         const handleExplanationRequest = () => {
           const score1 = competencyScore[1];
           const score2 = competencyScore[2];
@@ -769,6 +791,92 @@
                     className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
                   >
                     Fechar
+                  </button>
+                </div>
+              </div>
+            )}
+            {showRulesModal && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white p-6 rounded-lg max-w-md w-full">
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center gap-2"> {/* Added container with gap-4 (16px) */}
+                        <img 
+                          src="./Images/RiskBot.png" 
+                          alt="RiskBot" 
+                          className="w-14 h-14 rounded-full"
+                        />
+                        <h3 className="text-xl font-bold flex items-center">Regras do RiskBot</h3>
+                      </div>
+                    <button 
+                      onClick={() => setShowRulesModal(false)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      X
+                    </button>
+                  </div>
+                  <ul className="list-disc pl-5 space-y-2 mb-4">
+                    <li>Leia a pergunta feita por nossos personagens</li>
+                    <li className="flex items-center gap-2">
+                      Eu vou me intrometer em todas as questões!!!! 
+                      <img 
+                        src="./Images/RiskBot.png" 
+                        alt="RiskBot" 
+                        className="w-10 h-10 rounded-full"
+                      />
+                    </li>
+                    <li>Escolha uma das opções da Ana, da Cris ou do Ravi:</li>
+                  
+                      <div className="flex items-center gap-4 mt-2 mb-2">
+                          <img 
+                            src="./Images/Ana.png" 
+                            alt="Ana" 
+                            className="w-10 h-10 rounded-full"
+                          />
+                          <img 
+                            src="./Images/Cris.png" 
+                            alt="Cris" 
+                            className="w-10 h-10 rounded-full"
+                          />
+                          <img 
+                            src="./Images/Ravi.png" 
+                            alt="Ravi" 
+                            className="w-10 h-10 rounded-full"
+                          />
+                        </div>
+                      
+                        <li className="flex items-center gap-2">
+                          clique em uma das opções em verde
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="w-10 h-10 transform rotate-45" // Added transform and rotate-0 to ensure horizontal position
+                            style={{ display: 'inline-block', verticalAlign: 'middle' }} // Added inline styling
+                          >
+                            <path d="M22 2L11 13"></path>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+                          </svg>
+                        </li>
+                        <li>suas escolhas ficarão rosa para que você possa relembrar</li>
+                        <li>Ao final, você verá seu resultado</li>
+                   
+                  </ul>
+                  <button
+                  onClick={() => {
+                      setShowRulesModal(false);
+                      setIsTyping(true);
+                      setTimeout(() => {
+                        setIsTyping(false);
+                        simulateTyping(0);
+                      }, 3000);
+                    }}
+                    className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                  >
+                    Entendi
                   </button>
                 </div>
               </div>
