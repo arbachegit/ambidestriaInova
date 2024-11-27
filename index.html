@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KnowRISK Fast - Chat Interativo com Explicação de Resultados</title>
+    <title>RiskBot - Ambidestria</title>
     <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
@@ -27,12 +27,12 @@
       };
 
       const QUESTIONS = [
-        //Pergunta 2
+        //Pergunta 1
         {
           character: "Ravi",
           text: "Pessoal, eu não gosto muito do nosso chefe. Ele está sempre estressado e pressionando. Não sei se é justa a pressão que ele faz.",
         },
-        //Pergunta 1
+        //Pergunta 2
         {
           character: "Ana",
           text: "Mas, sem pressão, não atingimos as metas e não ganhamos bônus. Eu quero muito viajar para fora do Brasil este ano.",
@@ -208,42 +208,133 @@
         );
       };
       //finaliza o cabeçalho
+      
 
-      //início do gráfico - haverá um vetor com os resultados
-      function CompetencyProgress({ name, score }) {
-        const percentage = ((score / 6) * 100).toFixed(1); // Calcula o percentual com uma casa decimal
 
+
+      // Componente para exibir informações de data/hora e duração
+
+      const ResultInfo = () => {
+        const [startTime] = useState(new Date());
+        const [currentTime, setCurrentTime] = useState(new Date());
+        const [elapsedTime, setElapsedTime] = useState(0);
+
+        useEffect(() => {
+          const timer = setInterval(() => {
+            const now = new Date();
+            setCurrentTime(now);
+            setElapsedTime(Math.floor((now - startTime) / 1000));
+          }, 1000);
+
+          return () => clearInterval(timer);
+        }, [startTime]);
+
+        const formatDate = (date) => {
+          return date.toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+          });
+        };
+        //finaliza o formatDate
+        const formatTime = (date) => {
+          return date.toLocaleTimeString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        };
+        //finaliza o formatTime
+        // Track time until last answer
+        const [lastAnswerTime, setLastAnswerTime] = useState(null);
+
+        // Track time from start until last answer
+        useEffect(() => {
+          const handleAnswer = () => {
+            setLastAnswerTime(elapsedTime);
+          };
+
+          window.addEventListener('answer', handleAnswer);
+          return () => window.removeEventListener('answer', handleAnswer);
+        }, [elapsedTime]);
+
+        // Track time until last answer 
+        
+
+    
+        const formatAnswerTime = (startTime, endTime) => {
+          if (!startTime || !endTime) return '--:--';
+          
+          const start = new Date(startTime);
+          const end = new Date(endTime);
+          const diffInSeconds = Math.floor((end - start) / 1000);
+          
+          const hours = Math.floor(diffInSeconds / 3600);
+          const minutes = Math.floor((diffInSeconds % 3600) / 60);
+          const seconds = diffInSeconds % 60;
+          
+          if (hours > 0) {
+            return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+          }
+          return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        };
+        
+        //insert informações de data/hora e duração - user information
         return (
-          <div className="mt-4">
+          <div className="text-left text-sm text-gray-600 mt-2 font-bold">
+            <p>Data: {formatDate(currentTime)}</p>
+            <p>Hora: {formatTime(currentTime)}</p>
+            
+          </div>
+        );
+      };
+      //finaliza o ResultInfo
+
+
+
+      //gráfico de competências
+      function CompetencyProgress({ name, score }) {
+        const percentage = ((score / 6) * 100).toFixed(1);
+        const [showTooltip, setShowTooltip] = useState(false);
+        
+        const barColor = name === "Aventureiro" ? "#FF6B6B" : "#FFA94D";
+        
+        return (
+          <div className="mt-4 relative">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xl font-semibold">{name}</h3>
-              <span className="text-lg text-gray-600 font-bold">
-                Score: {percentage}%
-              </span>{" "}
-              {/* Exibe o percentual */}
-            </div>
-            <div className="relative">
-              <div className="absolute w-full h-1 bg-gray-200 top-1/2 transform -translate-y-1/2"></div>
-              <div className="relative flex justify-between">
-                {[0, 1, 2, 3, 4, 5, 6].map((value) => (
-                  <div key={value} className="flex flex-col items-center">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold ${
-                        value <= score
-                          ? "bg-blue-500 text-white"
-                          : "bg-gray-300 text-gray-600"
-                      }`}
-                    >
-                      <span className="whitespace-nowrap">{value}</span>
+              <h3 className="text-xl font-semibold w-32">{name}</h3>
+              
+              <div className="flex-1 mx-4">
+                <div 
+                  className="relative h-8 bg-gray-200 rounded"
+                  onMouseEnter={() => setShowTooltip(true)}
+                  onMouseLeave={() => setShowTooltip(false)}
+                >
+                  <div
+                    className="h-full rounded transition-all duration-300 ease-in-out"
+                    style={{ 
+                      width: `${percentage}%`,
+                      backgroundColor: barColor
+                    }}
+                  />
+                  
+                  {showTooltip && (
+                    <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-3 py-1 rounded text-sm">
+                      {name}: {percentage}%
                     </div>
-                  </div>
-                ))}
+                  )}
+                </div>
               </div>
+              
+              <span className="text-lg text-gray-600 font-bold w-24 text-right">
+                {percentage}%
+              </span>
             </div>
           </div>
         );
       }
+      //finaliza o gráfico
 
+      //botão de rolagem para baixo
       function ScrollArrow() {
         const [isVisible, setIsVisible] = useState(false);
         const chatContainerRef = useRef(null);
@@ -321,7 +412,7 @@
       }
       //finaliza o gráfico
 
-      
+      //interface do chat
       function ChatInterface() {
         // Load saved user data on component mount
         const savedUserData = localStorage.getItem("userData");
@@ -387,7 +478,8 @@
             { character, text, responded, showButton },
           ]);
         };
-
+        //finaliza o handleAnswer
+        
         const handleAnswer = (answer) => {
           addMessage(answer.character, answer.text, true);
           setCompetencyScore((prev) => ({
@@ -517,6 +609,7 @@
                 )
               );
                   //finaliza a mensagem de regras
+
               setIsTyping(true);
               setTimeout(() => {
                 setIsTyping(false);
@@ -562,7 +655,8 @@
             setShowFinalMessage(true);
           }, 1000);
         };
-
+        //finaliza o handleExplanationRequest
+        //finaliza o chatInterface
         return (
           <div className="min-h-screen bg-gray-200 flex items-start justify-center py-8">
             <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto w-full relative">
@@ -648,11 +742,23 @@
                       ))}
                     </div>
                   )}
+
+                  
+                 
+                  
                   {showResult && (
                     <div className="space-y-4 mt-4">
                       <h2 className="text-center font-bold text-xl mb-4">
                         Resultado
                       </h2>
+
+
+                      {showResult && (
+                        <div className="text-left text-lg text-gray-600 mt-4 mb-4 ml-4">
+                          <ResultInfo />
+                        </div>
+                        )}
+
                       <CompetencyProgress
                         name="Aventureiro"
                         score={competencyScore[1]}
@@ -661,6 +767,8 @@
                         name="Pragmático"
                         score={competencyScore[2]}
                       />
+
+                      
                       <button
                         onClick={handleExplanationRequest}
                         className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
@@ -673,7 +781,7 @@
                     <div className="flex justify-end my-4">
                       <div className="riskbot-message rounded-lg p-3 max-w-3/4">
                         {" "}
-                        wq
+                        
                         <CharacterAvatars />
                         <div className="flex-grow">
                           <p className="font-semibold">RiskBot</p>
