@@ -283,7 +283,7 @@
           <div className="text-left text-sm text-gray-600 mt-2 font-bold">
             <p>Data: {formatDate(currentTime)}</p>
             <p>Hora: {formatTime(currentTime)}</p>
-            
+            <p>Tempo decorrido: {formatAnswerTime(lastAnswerTime)}</p>
           </div>
         );
       };
@@ -480,6 +480,7 @@
         };
         //finaliza o handleAnswer
         
+        //handleAnswer
         const handleAnswer = (answer) => {
           addMessage(answer.character, answer.text, true);
           setCompetencyScore((prev) => ({
@@ -749,7 +750,7 @@
                   {showResult && (
                     <div className="space-y-4 mt-4">
                       <h2 className="text-center font-bold text-xl mb-4">
-                        Resultado
+                        Resultados de seu papo com o RiskBot
                       </h2>
 
 
