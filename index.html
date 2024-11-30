@@ -1,699 +1,317 @@
+
+
 <!doctype html>
 <html lang="pt-BR">
+  <!-- Cabeçalho HTML com configurações básicas -->
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RiskBot - Ambidestria</title>
+    <meta charset="UTF-8" /> <!-- Define codificação de caracteres -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- Configuração para responsividade -->
+    <title>O impacto da IA em nossas vidas</title> <!-- Título da página -->
+    
+    <!-- Importação das bibliotecas React necessárias -->
+    <!-- React Core: Biblioteca principal do React que fornece funcionalidades básicas para criar componentes e gerenciar estado -->
     <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <!-- React DOM: Biblioteca que permite renderizar componentes React no navegador e manipular o DOM -->
+    <!-- DOM (Document Object Model) é uma interface de programação que representa documentos HTML e XML como uma estrutura de árvore,
+    onde cada nó representa um elemento, atributo ou texto do documento. O DOM permite que programas e scripts acessem e manipulem 
+    dinamicamente o conteúdo, estrutura e estilo de documentos web. -->
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <!-- Babel: Compilador que permite usar JSX e recursos modernos do JavaScript convertendo-os para código compatível com navegadores -->
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    
+    <!-- Importação do Tailwind CSS para estilização -->
+    <!-- Link para importar o framework Tailwind CSS que fornece classes utilitárias para estilização -->
     <link
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
+    <!-- Importação do arquivo de estilos customizados local para estilizações específicas do projeto -->
     <link rel="stylesheet" href="./Styles/Main.css" />
   </head>
+
+  <!-- Corpo da página -->
   <body class="bg-gray-200">
+    <!-- Div raiz onde o React será renderizado -->
     <div id="root" class="min-h-screen"></div>
 
+    <!-- Script principal com código React -->
     <script type="text/babel">
+      // Importação de hooks do React
       const { useState, useEffect, useRef } = React;
 
+      // Definição dos personagens e suas imagens
       const CHARACTERS = {
-        RiskBot: { image: "./Images/RiskBot.png" },
-        Ravi: { image: "./Images/Ravi.png" },
-        Ana: { image: "./Images/Ana.png" },
-        Cris: { image: "./Images/Cris.png" },
+        RiskBot: { image: "./Images/RiskBot.png" }
       };
 
-      const QUESTIONS = [
-        //Pergunta 1
-        {
-          character: "Ravi",
-          text: "Pessoal, eu não gosto muito do nosso chefe. Ele está sempre estressado e pressionando. Não sei se é justa a pressão que ele faz.",
-        },
-        //Pergunta 2
-        {
-          character: "Ana",
-          text: "Mas, sem pressão, não atingimos as metas e não ganhamos bônus. Eu quero muito viajar para fora do Brasil este ano.",
-        },
-        //Pergunta 3
-        {
-          character: "Cris",
-          text: "Ravi, você nunca sabe o que quer. Hoje mesmo você disse que não queria fazer hora extra!!!! 🤨",
-        },
-        //Pergunta 4
-        {
-          character: "Ravi",
-          text: "Pessoal, por falar em mudar de ideia, o que acham de esquecermos o trabalho e pensarmos no final de semana? O que vamos fazer?”",
-        },
-        //Pergunta 5
-        {
-          character: "Ana",
-          text: "Tá maluca, Cris? A semana foi cheia de desafios e mudanças. A gente precisa relaxar! Em vez de ficar sentadas, vamos para a balada!",
-        },
-        //Pergunta 6
-        {
-          character: "Cris",
-          text: "Nunca teremos um mar de rosas, e mais: acho que temos que provocar mudanças. A bagunça é a única coisa que nos mantém vivos.",
-        },
-      ];
+  
 
-      const ANSWERS = [
-        //conjunto de questões 1 - Pragmático/Aventureiro 2:1
-        {
-          character: "Ana",
-          text: "Ele precisa entregar metas resultados. Resultados são cobradas dele dia e noite. Eu o entendo.",
-          competency: 2,
-        },
-        {
-          character: "Cris",
-          text: "Na minha opinião, o ambiente de trabalho poderia ser mais tranquilo, mais amistoso. Não acho legal essa perssão 😔",
-          competency: 1,
-        },
-        //conjunto de questões 2 - Pragmático/Aventureiro 2:1
-        {
-          character: "Ravi",
-          text: "Eu também quero viajar, e já sabemos que precisaremos alcançar os resultados 🤨.",
-          competency: 2,
-        },
-        {
-          character: "Cris",
-          text: "Pessoal, embarcamos em uma aventura cheia de tarefas e metas que mudam o tempo todo. Nossa meta virou o mapa do tesouro. E aquela frase mágica da contratação: ‘Sua ideia brilha mais que o caminho’? Para onde foi?",
-          competency: 1,
-        },
-        //conjunto de questões 3 - Aventureiro/Pragmático 1:2
-        {
-          character: "Ana",
-          text: "Cris, você não acha que as pessoas podem mudar de ideia? A vida não é um livro finalizado; tem muitas páginas em branco, não acha?",
-          competency: 2,
-        },
-        {
-          character: "Ravi",
-          text: "Mas a Cris tem razão. Eu disse mesmo que não queria trabalhar mais do que trabalho",
-          competency: 1,
-        },
-        //conjunto de questões 4 - Pragmático/Aventureiro 2:1
-        {
-          character: "Ana",
-          text: "Vamos sim, Ravi. Eu super topo! Tem um bar novo, super badalado, que podemos ir. O que acham?",
-          competency: 2,
-        },
-        {
-          character: "Cris",
-          text: "O que é isso, Ana? Ver as mesmas pessoas de sempre e escutar as mesmas coisas? Vamos a um filme diferente 🎬 e experimentar algo novo!",
-          competency: 1,
-        },
-        //conjunto de questões 5 - Pragmático/Aventureiro 2:1
-        {
-          character: "Ravi",
-          text: "De certa forma, concordo com a Ana. A semana foi muito difícil e, pelo que tudo indica, a próxima será tão complicada quanto.",
-          competency: 2,
-        },
-        {
-          character: "Cris",
-          text: "Ué! Vocês têm alguma dúvida de que o mundo vai virar um mar de rosas?",
-          competency: 1,
-        },
-        //conjunto de questões 6 - Aventureiro/Pragmático 1:2
-        {
-          character: "Ravi",
-          text: "Realmente o mundo mudou e continua mudando. Vamos ter que pensar sempre nisto. Não tem como ficar na mesma",
-          competency: 1,
-        },
-        {
-          character: "Ana",
-          text: "Que muda eu sei que muda, mas daí para assistir um filme alternativo, não está demais?",
-          competency: 2,
-        },
-      ];
-
-      const RISK_BOT_MESSAGES = [
-        //Intervenção 1
-        "O chefe, Marcos, está pressionando muito a turma por resultados 📊. Vive falando de qualidade de vida nas redes sociais, mas, no dia a dia, é uma máquina de pressão.",
-        //Intervenção 2
-        "A Ana quer muito viajar e para isto, quer alcançar resultados. Vamos ver o que o Ravi e a Cris pensam? 🤔",
-        //Intervenção 3
-        "O Ravi está sempre mudando de ideias, principalmente quando a Cris fala algo 🤣",
-        //Intervenção 4
-        "A Ana e a Cris não conseguem concordar com tudo. Sempre estão discutindo.",
-        //Intervenção 5
-        "O que fazer? O diferente ou o novo?",
-        //Intervenção 6
-        "E aí, o que você espera fazer da sua vida? Uma aventura ou tranquilidade com planejamento?",
-      ];
-
-      // Components
-      const PaperPlaneIcon = () => (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          className="paper-plane-icon"
-        >
-          <path d="M22 2L11 13"></path>
-          <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
-        </svg>
-      );
-
-      const Progress = ({ value, className, ...props }) => {
-        return (
-          <div
-            className={`w-full bg-gray-200 rounded-full h-2.5 ${className}`}
-            {...props}
-          >
-            <div
-              className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out"
-              style={{ width: `${value}%` }}
-            ></div>
-          </div>
-        );
-      };
-
-      //Barra de progresso da cabeçalho
+      // Componente da barra de progresso específica do RiskBot
       const RiskBotProgressBar = ({ progress = 0 }) => {
         return (
-          <div className="bg-gray-600 w-full pb-6 h-20 border-b-4 border-blue-800">
+          <div className="bg-gray-600 w-full pb-6 h-20 border-b-4 border-blue-800 rounded-lg">
             <div className="px-4">
               <div className="flex items-center justify-between mb-2">
-                {/* Logo e Avatar */}
                 <div className="flex items-center gap-6">
                   <div className="flex items-center">
                     <img
                       src="./Images/KnowRisk.png"
                       alt="KnowRisk Logo"
-                      className="h-12 mt-2 mr-4"
+                      className="h-16 mt-2 mr-4"
                     />
-                    <div class="w-12 h-12 flex items-center justify-center overflow-hidden">
+                    <div className="w-16 h-16 flex items-center justify-center overflow-hidden">
                       <img
                         src="./Images/RiskBot.png"
                         alt="KnowBot Logo"
-                        class="w-full h-full object-cover"
+                        className="w-full h-full object-cover"
                       />
                     </div>
+                    
                     <span className="font-bold text-white text-lg ml-4">
-                      RiskBot AI
-                    </span>{" "}
-                    {/* Centraliza e ajusta o tamanho do texto */}
+                      RiskBot apresenta: "AI - Mudança ou Extinção"
+                    </span>
                   </div>
                 </div>
-                {/* Progresso */}
-                <div className="text-lg font-bold text-white">
-                  Progresso: {progress.toFixed(2)}%
-                </div>
               </div>
-              <Progress value={progress} className="w-[90%] mx-auto mb-4" />
             </div>
           </div>
         );
       };
-      //finaliza o cabeçalho
-      
 
-
-
-      // Componente para exibir informações de data/hora e duração
-
-      const ResultInfo = () => {
-        const [startTime] = useState(new Date());
-        const [currentTime, setCurrentTime] = useState(new Date());
-        const [elapsedTime, setElapsedTime] = useState(0);
-
-        useEffect(() => {
-          const timer = setInterval(() => {
-            const now = new Date();
-            setCurrentTime(now);
-            setElapsedTime(Math.floor((now - startTime) / 1000));
-          }, 1000);
-
-          return () => clearInterval(timer);
-        }, [startTime]);
-
-        const formatDate = (date) => {
-          return date.toLocaleDateString('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-          });
-        };
-        //finaliza o formatDate
-        const formatTime = (date) => {
-          return date.toLocaleTimeString('pt-BR', {
-            hour: '2-digit',
-            minute: '2-digit'
-          });
-        };
-        //finaliza o formatTime
-        // Track time until last answer
-        const [lastAnswerTime, setLastAnswerTime] = useState(null);
-
-        // Track time from start until last answer
-        useEffect(() => {
-          const handleAnswer = () => {
-            setLastAnswerTime(elapsedTime);
-          };
-
-          window.addEventListener('answer', handleAnswer);
-          return () => window.removeEventListener('answer', handleAnswer);
-        }, [elapsedTime]);
-
-        // Track time until last answer 
-        
-
-    
-        const formatAnswerTime = (startTime, endTime) => {
-          if (!startTime || !endTime) return '--:--';
-          
-          const start = new Date(startTime);
-          const end = new Date(endTime);
-          const diffInSeconds = Math.floor((end - start) / 1000);
-          
-          const hours = Math.floor(diffInSeconds / 3600);
-          const minutes = Math.floor((diffInSeconds % 3600) / 60);
-          const seconds = diffInSeconds % 60;
-          
-          if (hours > 0) {
-            return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-          }
-          return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        };
-        
-        //insert informações de data/hora e duração - user information
-        return (
-          <div className="text-left text-sm text-gray-600 mt-2 font-bold">
-            <p>Data: {formatDate(currentTime)}</p>
-            <p>Hora: {formatTime(currentTime)}</p>
-            <p>Tempo decorrido: {formatAnswerTime(lastAnswerTime)}</p>
-          </div>
-        );
-      };
-      //finaliza o ResultInfo
-
-
-
-      //gráfico de competências
-      function CompetencyProgress({ name, score }) {
-        const percentage = ((score / 6) * 100).toFixed(1);
-        const [showTooltip, setShowTooltip] = useState(false);
-        
-        const barColor = name === "Aventureiro" ? "#FF6B6B" : "#FFA94D";
-        
-        return (
-          <div className="mt-4 relative">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xl font-semibold w-32">{name}</h3>
-              
-              <div className="flex-1 mx-4">
-                <div 
-                  className="relative h-8 bg-gray-200 rounded"
-                  onMouseEnter={() => setShowTooltip(true)}
-                  onMouseLeave={() => setShowTooltip(false)}
-                >
-                  <div
-                    className="h-full rounded transition-all duration-300 ease-in-out"
-                    style={{ 
-                      width: `${percentage}%`,
-                      backgroundColor: barColor
-                    }}
-                  />
-                  
-                  {showTooltip && (
-                    <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-3 py-1 rounded text-sm">
-                      {name}: {percentage}%
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              <span className="text-lg text-gray-600 font-bold w-24 text-right">
-                {percentage}%
-              </span>
-            </div>
-          </div>
-        );
-      }
-      //finaliza o gráfico
-
-      //botão de rolagem para baixo
-      function ScrollArrow() {
-        const [isVisible, setIsVisible] = useState(false);
-        const chatContainerRef = useRef(null);
-
-        useEffect(() => {
-          const chatContainer = document.querySelector(".chat-container");
-          if (!chatContainer) {
-            console.error("Elemento .chat-container não encontrado!");
-            return;
-          }
-
-          chatContainerRef.current = chatContainer;
-
-          const handleScroll = () => {
-            const { scrollTop, scrollHeight, clientHeight } = chatContainer;
-            setIsVisible(scrollTop + clientHeight < scrollHeight - 20);
-          };
-
-          chatContainer.addEventListener("scroll", handleScroll);
-          handleScroll();
-
-          return () =>
-            chatContainer.removeEventListener("scroll", handleScroll);
-        }, []);
-
-        const handleClick = () => {
-          if (chatContainerRef.current) {
-            chatContainerRef.current.scrollTo({
-              top: chatContainerRef.current.scrollHeight,
-              behavior: "smooth",
-            });
-          }
-        };
-
-        return (
-          <div className={`scroll-arrow ${isVisible ? "visible" : ""}`}>
-            <button
-              onClick={handleClick}
-              aria-label="Scroll to bottom"
-              className="scroll-arrow-button"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 5v14M19 12l-7 7-7-7" />
-              </svg>
-            </button>
-          </div>
-        );
-      }
-
+     
+      // Este componente CharacterAvatars é responsável por renderizar o avatar/imagem de um personagem
+      // Ele recebe o nome do personagem como prop e:
+      // 1. Busca os dados do personagem em um objeto CHARACTERS
+      // 2. Exibe a imagem do personagem se encontrada, ou uma imagem padrão caso contrário
+      // 3. Aplica estilização para tornar a imagem circular e com dimensões específicas
       function CharacterAvatars({ characterName }) {
-        const character = CHARACTERS[characterName]; // Busca o personagem pelo nome
-
-        if (!character) {
-          console.error(`Character "${characterName}" não encontrado!`);
-          return null; // Retorna null se o personagem não existir
-        }
-
+        // Como só temos o RiskBot, podemos simplificar o componente
         return (
           <div className="character-avatar">
             <img
-              src={character.image || "/Images/default-avatar.png"}
-              alt={`${characterName} avatar`}
-              className="w-10 h-10 rounded-full mr-2"
+              src="./Images/RiskBot.png" 
+              alt="RiskBot avatar"
+              className="w-30 h-30 rounded-full mr-2"
             />
           </div>
         );
       }
-      //finaliza o gráfico
 
-      //interface do chat
+      // Componente do ícone de avião de papel
+      function PaperPlaneIcon() {
+        return (
+          <svg
+            className="paper-plane-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M22 2L11 13" />
+            <path d="M22 2L15 22L11 13L2 9L22 2Z" />
+          </svg>
+        );
+      }
+      
+      // Componente principal da interface de chat
       function ChatInterface() {
-        // Load saved user data on component mount
+        // Gerenciamento de estado do usuário
         const savedUserData = localStorage.getItem("userData");
         const initialUserData = savedUserData
           ? JSON.parse(savedUserData)
           : { name: "", email: "", company: "" };
+       
+        // Estado inicial das mensagens
+        const [messages, setMessages] = useState([]);
+        
+        useEffect(() => {
+          // Mostrar typing indicator inicial
+          setIsTyping(true);
+          
+          // Primeira mensagem após 1 segundo
+          setTimeout(() => {
+            setIsTyping(false);
+            setMessages([{
+              character: "RiskBot",
+              text: 'Olá, meu nome é RiskBot. Vou apresentar um tema muito interessante para você. Mudança ou Extinção: Como a IA Transformará o Setor Logístico',
+              isFirstMessage: true,
+            }]);
+            
+            // Typing indicator entre mensagens
+            setIsTyping(true);
+            
+            // Segunda mensagem após mais 1 segundo
+            setTimeout(() => {
+              setIsTyping(false);
+              setMessages(prev => [...prev, {
+                character: "RiskBot", 
+                text: "Este conteúdo foi feito especialmente para a ABOL e ele será continuamente atualizado com novas informações e insights.",
+                showButton: true,
+              }]);
+            }, 2000);
+            
+          }, 2000);
+        }, []);
 
-        const [scoresSent, setScoresSent] = useState(false);
-
-        const [messages, setMessages] = useState([
-          {
-            character: "RiskBot",
-            text: "Olá, meu nome é RiskBot. Sou uma IA 🤖 muito esperta! Nossos personagens Ravi, Ana e Cris irão discutir alguns dilemas.",
-            isFirstMessage: true,
-          },
-          {
-            character: "RiskBot",
-            text: "Vamos ajudar Cris, Ana e Ravi a achar os melhores caminhos🚦?? ‼️ Responda aquilo que considerar mais interessante. Não existe certo ou errado.",
-            showButton: true,
-          },
-        ]);
+        // Estados diversos para controle da interface
         const [showUserForm, setShowUserForm] = useState(false);
         const [userData, setUserData] = useState(initialUserData);
-        const [currentQuestion, setCurrentQuestion] = useState(0);
         const [isTyping, setIsTyping] = useState(false);
         const [showAnswers, setShowAnswers] = useState(false);
-        const [competencyScore, setCompetencyScore] = useState({ 1: 0, 2: 0 });
         const [showResult, setShowResult] = useState(false);
         const [conversationStarted, setConversationStarted] = useState(false);
         const [progress, setProgress] = useState(0);
-        const [answeredQuestions, setAnsweredQuestions] = useState(0);
         const [buttonClicked, setButtonClicked] = useState(false);
         const [showRiskbotDialog, setShowRiskbotDialog] = useState(false);
         const [riskbotDialogContent, setRiskbotDialogContent] = useState("");
-        const [showFinalMessage, setShowFinalMessage] = useState(false);
-        const [showRulesModal, setShowRulesModal] = useState(false);
-
+        const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
+        
+        // Referência para o container de chat
         const chatContainerRef = useRef(null);
 
-        useEffect(() => {
-          if (conversationStarted) {
-            const progressPercentage =
-              (answeredQuestions / QUESTIONS.length) * 100;
-            setProgress(progressPercentage);
-          }
-        }, [conversationStarted, answeredQuestions]);
-
+        // Efeito para scroll automático
         useEffect(() => {
           if (chatContainerRef.current) {
-            chatContainerRef.current.scrollTop =
-              chatContainerRef.current.scrollHeight;
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
           }
-        }, [messages, showAnswers, showFinalMessage]);
+        }, [messages, showAnswers]);
 
-        const addMessage = (
-          character,
-          text,
-          responded = false,
-          showButton = false,
-        ) => {
-          setMessages((prev) => [
-            ...prev,
-            { character, text, responded, showButton },
-          ]);
-        };
-        //finaliza o handleAnswer
-        
-        //handleAnswer
-        const handleAnswer = (answer) => {
-          addMessage(answer.character, answer.text, true);
-          setCompetencyScore((prev) => ({
-            ...prev,
-            [answer.competency]: Math.min(prev[answer.competency] + 1, 6),
-          }));
-          setShowAnswers(false);
-          setAnsweredQuestions((prev) => prev + 1);
-          setCurrentQuestion((prev) => {
-            const next = prev + 1;
-            if (next < QUESTIONS.length) {
-              setTimeout(() => simulateTyping(next), 1000);
-            } else {
-              setShowResult(true);
-              // Send competency scores only once when the assessment is complete
-              if (!scoresSent) {
-                fetch("https://back.knowyou.know-risk.ai/api/competencies", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "X-API-Key":
-                      "sk_test_12345_cKF9Jd8n2L5mP7vX4Y6hQ9wR3tN8bM1",
-                  },
-                  body: JSON.stringify({
-                    email: userData.email,
-                    pair: [competencyScore[1], competencyScore[2]],
-                  }),
-                })
-                  .then(() => setScoresSent(true))
-                  .catch((error) =>
-                    console.error("Error saving competency scores:", error),
-                  );
-              }
-            }
-            return next;
-          });
+        // Função para adicionar mensagens
+        const addMessage = (character, text, responded = false, showButton = false) => {
+          setMessages((prev) => [...prev, { character, text, responded, showButton }]);
         };
 
-        const simulateTyping = (questionIndex) => {
-          setIsTyping(true); // Inicia "digitando" para a pergunta
-
-          setTimeout(() => {
-            setIsTyping(false); // Finaliza o estado "digitando" da pergunta
-
-            if (questionIndex < QUESTIONS.length) {
-              // Adiciona a pergunta do personagem
-              const { character, text } = QUESTIONS[questionIndex];
-              addMessage(character, text);
-
-              // Mostra a mensagem personalizada do RiskBot após um pequeno delay
-              setIsTyping(true);
-              setTimeout(() => {
-                setIsTyping(false);
-
-                // Adiciona a mensagem personalizada do RiskBot
-                const riskBotMessage =
-                  RISK_BOT_MESSAGES[questionIndex] ||
-                  "Qual das respostas você escolheria?";
-                addMessage("RiskBot", riskBotMessage);
-
-                setShowAnswers(true); // Habilita as respostas
-              }, 1000);
-            } else {
-              // Quando todas as perguntas terminarem, exibe o resultado
-              setShowResult(true);
-            }
-          }, 2000); // Tempo de digitação para a pergunta
-        };
-
+        // Função para iniciar conversa com o usuário
         const startConversation = () => {
+          // Esta função é chamada quando o usuário clica no botão inicial do RiskBot
+          // Ela inicia o fluxo de coleta dos dados do usuário (nome, email e empresa)
+          // através do formulário que será exibido
           if (!buttonClicked) {
-            setButtonClicked(true);
-            setShowUserForm(true);
+            setButtonClicked(true); // Marca que o botão foi clicado
+            setShowUserForm(true);  // Exibe o formulário de dados do usuário
           }
         };
 
+        // Função para lidar com envio do formulário
         const handleUserSubmit = async (e) => {
           e.preventDefault();
           try {
-            const response = await fetch(
-              "https://back.knowyou.know-risk.ai/api/register",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-API-Key": "sk_test_12345_cKF9Jd8n2L5mP7vX4Y6hQ9wR3tN8bM1",
-                },
-                body: JSON.stringify(userData),
+            const response = await fetch("https://back.knowyou.know-risk.ai/api/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-API-Key": "sk_test_12345_cKF9Jd8n2L5mP7vX4Y6hQ9wR3tN8bM1",
               },
-            );
+              body: JSON.stringify(userData),
+            });
 
             if (!response.ok) {
               throw new Error("Failed to register user");
             }
 
-            // Store user data in localStorage for persistence
+            // Salva os dados do usuário no armazenamento local do navegador para uso futuro
             localStorage.setItem("userData", JSON.stringify(userData));
+            
+            // Esconde o formulário de entrada do usuário
             setShowUserForm(false);
+            
+            // Marca que a conversa foi iniciada
             setConversationStarted(true);
-            addMessage(
-              "RiskBot",
-              <span dangerouslySetInnerHTML={{
-                  __html: `Olá <strong>${userData.name}</strong> da <strong>${userData.company}</strong>! Vamos começar nossa conversa? Ana, Cris e Ravi estão discutindo a respeito da vida deles. Estão falando de vida profissional e pessoal, tudo junto e misturado 🤪.`,
-                }}
-              />,
-            );
-          
-
-            //inicia a conversa 
+            
+            // Adiciona uma mensagem de boas-vindas personalizada do RiskBot
+            // usando o nome e empresa fornecidos pelo usuário
+            // Adiciona o indicador de digitação
+            // Adiciona o indicador de digitação fora da caixa de diálogo
             setIsTyping(true);
+
+            // Adiciona delay para simular digitação
             setTimeout(() => {
               setIsTyping(false);
+              
               addMessage(
-                "RiskBot",
-                "Primeiro, essa turma ira começar a discutir a respeito das complexidades do trabalho. 👩🏻‍💻",
+                "RiskBot", 
+                `Olá ${userData.name} da ${userData.company}! Clique no botão abaixo para acessar o conteúdo.`
               );
 
-              // Add new dialog for rules
-              addMessage(
-                "RiskBot",
-                React.createElement("div", null,
-                  "Antes de continuarmos, leia as regras do nosso bate-papo:",
-                  React.createElement("button", {
-                    onClick: () => setShowRulesModal(true),
-                    className: "mt-2 block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-                  }, "Ver Regras")
-                )
-              );
-                  //finaliza a mensagem de regras
-
+              // Adiciona o indicador de digitação
               setIsTyping(true);
+              
               setTimeout(() => {
                 setIsTyping(false);
-               
-              }, 3000);
-            }, 3000);
+                
+                // Adiciona o botão de acesso após a mensagem de boas-vindas
+                addMessage(
+                  "RiskBot",
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="flex flex-row space-x-4">
+                      <a 
+                        href="https://genai.knowfuture.tech/log"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-block"
+                      >
+                        Acessar Conteúdo
+                      </a>
+                      <a
+                        href="https://arbachegit.github.io/ambidestriaInova/" 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded inline-block"
+                      >
+                        Quer testar a sua ambidestria?
+                      </a>
+                    </div>
+                  </div>
+                );
+              }, 2000); // 2 segundos de delay
+            }, 2000); // 2 segundos de delay
+            
           } catch (error) {
-            console.error("Erro ao processar o formulario:", error);
+            console.error("Erro ao processar o formulário:", error);
             addMessage(
               "RiskBot",
-              "Desculpe, ocorreu um erro ao processar suas info. Por favor, tente novamente.",
+              "Desculpe, ocorreu um erro ao processar suas informações. Por favor, tente novamente."
             );
             setShowUserForm(true);
           }
         };
-        
-        const handleExplanationRequest = () => {
-          const score1 = competencyScore[1];
-          const score2 = competencyScore[2];
-          let newExplanation = "";
 
-          if (score1 > score2) {
-            newExplanation =
-              "Notei que você gosta de se arriscar. Exagerar é um pouco perigoso 🍩. Uma pessoa com ambidestria tende a assumir risco, mas sempre buscando um certo controle. Aventura demais pode levar a caminhos perigosos";
-          } else if (score2 > score1) {
-            newExplanation =
-              "Notei que você não gosta muito do tema de inovação, risco e aventura 😎. Mas sabia que a inovação é muito importante? Embora possa trazer riscos, uma pessoa ambidestra precisa ser um pouco pragmática e um pouco inovadora.";
-          } else {
-            newExplanation =
-              "Você tem grandes possibilidades de ter aspectos de ambidestria 🥳🎉. Note que é um pouco pragmático, mas também gosta de se arriscar um pouco. Parabéns. Esta é uma habilidade muito importante em um mundo tão disruptivo, mas incerto como o de hoje.";
-          }
-
-          setRiskbotDialogContent(newExplanation);
-          setShowRiskbotDialog(true);
-        };
-
-        const closeRiskbotDialog = () => {
-          setShowRiskbotDialog(false);
-          addMessage("RiskBot", "Aqui está a explicação dos seus resultados:");
-          addMessage("RiskBot", riskbotDialogContent);
-
-          setTimeout(() => {
-            setShowFinalMessage(true);
-          }, 1000);
-        };
-        //finaliza o handleExplanationRequest
-        //finaliza o chatInterface
+        // Renderização da interface principal
         return (
           <div className="min-h-screen bg-gray-200 flex items-start justify-center py-8">
             <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto w-full relative">
               <RiskBotProgressBar progress={progress} />
-              <div
-                className="mt-4 relative"
-                style={{ height: "calc(100vh - 200px)", maxHeight: "600px" }}
-              >
+              
+              <div className="mt-4 relative" style={{ height: "calc(100vh - 200px)", maxHeight: "500px" }}>
                 <div
                   ref={chatContainerRef}
-                  className="chat-container overflow-y-auto space-y-4 pr-4"
+                  className="chat-container overflow-y-auto space-y-4"
                   style={{ height: "100%" }}
                 >
                   {messages.map((msg, index) => (
                     <div
                       key={index}
-                      className={`flex ${
+                      className={`flex items-start rounded-lg p-0 w-full ${
                         msg.isFirstMessage
                           ? "justify-start bg-blue-300"
                           : msg.character === "RiskBot"
-                            ? "justify-end"
-                            : "justify-start"
+                          ? "justify-end"
+                          : "justify-start"
                       }`}
                     >
                       <div
-                        className={`flex items-start space-x-2 rounded-lg p-3 max-w-3/4 ${
+                        className={`flex items-start space-x-2 rounded-lg p-3 w-full ${
                           msg.isFirstMessage
                             ? "border border-blue-300"
                             : msg.responded
-                              ? "answer-optioncheck"
-                              : msg.character === "RiskBot"
-                                ? "riskbot-message"
-                                : "character-question"
+                            ? "answer-optioncheck"
+                            : msg.character === "RiskBot"
+                            ? "riskbot-message"
+                            : "character-question"
                         }`}
+                        style={{ maxWidth: "100%" }}
                       >
                         <CharacterAvatars characterName={msg.character} />
+                        {/* Conteúdo da mensagem */}
                         <div className="flex-grow">
                           <p className="font-semibold">{msg.character}</p>
                           <p>{msg.text}</p>
@@ -709,6 +327,7 @@
                       </div>
                     </div>
                   ))}
+                  
                   {isTyping && (
                     <div className="flex justify-start my-2">
                       <div className="bg-gray-200 rounded-full px-4 py-2">
@@ -720,105 +339,40 @@
                       </div>
                     </div>
                   )}
-                  {showAnswers && (
-                    <div className="space-y-2 mt-4">
-                      {ANSWERS.slice(
-                        currentQuestion * 2,
-                        currentQuestion * 2 + 2,
-                      ).map((answer, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handleAnswer(answer)}
-                          className="w-full flex items-center space-x-2 answer-option rounded-lg p-3 cursor-pointer transition-colors"
-                        >
-                          <CharacterAvatars characterName={answer.character} />
-                          <div className="flex-grow text-left">
-                            <p className="font-semibold">{answer.character}</p>
-                            <p>{answer.text}</p>
-                          </div>
-                          <div className="flex items-center">
-                            <PaperPlaneIcon />
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
                   
-                 
-                  
-                  {showResult && (
-                    <div className="space-y-4 mt-4">
-                      <h2 className="text-center font-bold text-xl mb-4">
-                        Resultados de seu papo com o RiskBot
-                      </h2>
-
-
-                      {showResult && (
-                        <div className="text-left text-lg text-gray-600 mt-4 mb-4 ml-4">
-                          <ResultInfo />
-                        </div>
-                        )}
-
-                      <CompetencyProgress
-                        name="Aventureiro"
-                        score={competencyScore[1]}
-                      />
-                      <CompetencyProgress
-                        name="Pragmático"
-                        score={competencyScore[2]}
-                      />
-
-                      
-                      <button
-                        onClick={handleExplanationRequest}
-                        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-                      >
-                        Explicar Resultados
-                      </button>
-                    </div>
-                  )}
-                  {showFinalMessage && (
-                    <div className="flex justify-end my-4">
-                      <div className="riskbot-message rounded-lg p-3 max-w-3/4">
-                        {" "}
-                        
-                        <CharacterAvatars />
-                        <div className="flex-grow">
-                          <p className="font-semibold">RiskBot</p>
-                          <p>
-                            Obrigado {userData.name} por participar desta
-                            avaliação! Ser ambidestro não é algo fácil ou óbvio.
-                            É necessário estar atento o tempo todo. Por vezes, a
-                            estabilidade nos chama, trazendo paz e segurança.
-                            Mas, em outras, a falta de ousadia faz com que toda
-                            essa paz e segurança simplesmente desapareçam. Sabe
-                            por quê? O mundo muda, e muda sempre. O que é certo
-                            hoje pode não ser amanhã.
-                            <b>Inovar com cautela</b>. Apesar de parecerem
-                            contraditórios, esses dois elementos formam a grande
-                            dupla que impulsiona a evolução do nosso mundo.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                
                 </div>
-                <ScrollArrow />
               </div>
             </div>
+            {/* Formulário de usuário */}
+            {/* Este trecho de código é um componente de formulário em React que é renderizado condicionalmente
+                através da variável de estado 'showUserForm'. 
+                
+                Quando showUserForm é true, ele renderiza um modal (janela flutuante) que contém um formulário
+                para coletar informações do usuário como nome, email e empresa.
+
+                O formulário usa:
+                - Estado (userData) para gerenciar os dados do formulário
+                - Evento onSubmit para processar o envio do formulário (handleUserSubmit)
+                - Componentes controlados com value e onChange para cada campo
+                - Estilização usando classes do Tailwind CSS
+                
+                O modal tem um fundo semi-transparente (bg-black bg-opacity-50) e está centralizado na tela.
+                O formulário em si tem um fundo branco, padding e bordas arredondadas.
+                
+                Cada campo do formulário é obrigatório (required) e possui:
+                - Label descritivo
+                - Input com estilização e estados de foco
+                - Validação básica de tipo (email para o campo de email)
+                
+                O botão de submit é estilizado em azul e ocupa toda a largura do formulário */}
             {showUserForm && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white p-6 rounded-lg max-w-md w-full">
-                  <h3 className="text-xl font-bold mb-4">
-                    Antes de começarmos...
-                  </h3>
+                <div className="bg-white p-6 rounded-lg w-full max-w-md mx-4">
+                  <h3 className="text-xl font-bold mb-4">Antes de começarmos...</h3>
                   <form onSubmit={handleUserSubmit} className="space-y-4">
                     <div>
-                      <label
-                        htmlFor="name"
-                        className="block text-sm font-medium text-gray-700"
-                      >
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                         Nome
                       </label>
                       <input
@@ -827,19 +381,11 @@
                         required
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
                         value={userData.name}
-                        onChange={(e) =>
-                          setUserData((prev) => ({
-                            ...prev,
-                            name: e.target.value,
-                          }))
-                        }
+                        onChange={(e) => setUserData((prev) => ({ ...prev, name: e.target.value }))}
                       />
                     </div>
                     <div>
-                      <label
-                        htmlFor="email"
-                        className="block text-sm font-medium text-gray-700"
-                      >
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                         Email
                       </label>
                       <input
@@ -848,19 +394,11 @@
                         required
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
                         value={userData.email}
-                        onChange={(e) =>
-                          setUserData((prev) => ({
-                            ...prev,
-                            email: e.target.value,
-                          }))
-                        }
+                        onChange={(e) => setUserData((prev) => ({ ...prev, email: e.target.value }))}
                       />
                     </div>
                     <div>
-                      <label
-                        htmlFor="company"
-                        className="block text-sm font-medium text-gray-700"
-                      >
+                      <label htmlFor="company" className="block text-sm font-medium text-gray-700">
                         Empresa
                       </label>
                       <input
@@ -869,12 +407,7 @@
                         required
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
                         value={userData.company}
-                        onChange={(e) =>
-                          setUserData((prev) => ({
-                            ...prev,
-                            company: e.target.value,
-                          }))
-                        }
+                        onChange={(e) => setUserData((prev) => ({ ...prev, company: e.target.value }))}
                       />
                     </div>
                     <button
@@ -887,114 +420,15 @@
                 </div>
               </div>
             )}
-            {showRiskbotDialog && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                <div className="bg-white p-6 rounded-lg max-w-md">
-                  <div className="flex items-center mb-4">
-                    <CharacterAvatars />
-                    <h3 className="text-xl font-bold">RiskBot</h3>
-                  </div>
-                  <p>{riskbotDialogContent}</p>
-                  <button
-                    onClick={closeRiskbotDialog}
-                    className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-                  >
-                    Fechar
-                  </button>
-                </div>
-              </div>
-            )}
-            {showRulesModal && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white p-6 rounded-lg max-w-md w-full">
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center gap-2"> {/* Added container with gap-4 (16px) */}
-                        <img 
-                          src="./Images/RiskBot.png" 
-                          alt="RiskBot" 
-                          className="w-14 h-14 rounded-full"
-                        />
-                        <h3 className="text-xl font-bold flex items-center">Regras do RiskBot</h3>
-                      </div>
-                    <button 
-                      onClick={() => setShowRulesModal(false)}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      X
-                    </button>
-                  </div>
-                  <ul className="list-disc pl-5 space-y-2 mb-4">
-                    <li>Leia a pergunta feita por nossos personagens</li>
-                    <li className="flex items-center gap-2">
-                      Eu vou me intrometer em todas as questões!!!! 
-                      <img 
-                        src="./Images/RiskBot.png" 
-                        alt="RiskBot" 
-                        className="w-10 h-10 rounded-full"
-                      />
-                    </li>
-                    <li>Escolha uma das opções da Ana, da Cris ou do Ravi:</li>
-                  
-                      <div className="flex items-center gap-4 mt-2 mb-2">
-                          <img 
-                            src="./Images/Ana.png" 
-                            alt="Ana" 
-                            className="w-10 h-10 rounded-full"
-                          />
-                          <img 
-                            src="./Images/Cris.png" 
-                            alt="Cris" 
-                            className="w-10 h-10 rounded-full"
-                          />
-                          <img 
-                            src="./Images/Ravi.png" 
-                            alt="Ravi" 
-                            className="w-10 h-10 rounded-full"
-                          />
-                        </div>
-                      
-                        <li className="flex items-center gap-2">
-                          clique em uma das opções em verde
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="w-10 h-10 transform rotate-45" // Added transform and rotate-0 to ensure horizontal position
-                            style={{ display: 'inline-block', verticalAlign: 'middle' }} // Added inline styling
-                          >
-                            <path d="M22 2L11 13"></path>
-                            <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
-                          </svg>
-                        </li>
-                        <li>suas escolhas ficarão rosa para que você possa relembrar</li>
-                        <li>Ao final, você verá seu resultado</li>
-                   
-                  </ul>
-                  <button
-                  onClick={() => {
-                      setShowRulesModal(false);
-                      setIsTyping(true);
-                      setTimeout(() => {
-                        setIsTyping(false);
-                        simulateTyping(0);
-                      }, 3000);
-                    }}
-                    className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-                  >
-                    Entendi
-                  </button>
-                </div>
-              </div>
-            )}
+            
           </div>
         );
       }
 
+      // Renderização do componente principal na div root
       ReactDOM.render(<ChatInterface />, document.getElementById("root"));
+      
     </script>
+
   </body>
 </html>
