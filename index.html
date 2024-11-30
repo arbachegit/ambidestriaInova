@@ -68,7 +68,7 @@
         },
         {
           character: "Cris",
-          text: "Na minha opinião, o ambiente de trabalho poderia ser mais tranquilo, mais amistoso. Não acho legal essa pressão 😔",
+          text: "Na minha opinião, o ambiente de trabalho poderia ser mais tranquilo, mais amistoso. Não acho legal essa perssão 😔",
           competency: 1,
         },
         //conjunto de questões 2 - Pragmático/Aventureiro 2:1
@@ -143,11 +143,7 @@
         "E aí, o que você espera fazer da sua vida? Uma aventura ou tranquilidade com planejamento?",
       ];
 
-      // Este componente cria um ícone de avião de papel (paper plane) usando SVG
-      // É usado como um elemento visual no botão "Iniciar" do chat
-      // O SVG desenha as linhas que formam o avião de papel usando coordenadas (path)
-      // - A primeira linha (path) desenha a diagonal superior do avião
-      // - A segunda linha (path) desenha o contorno completo do avião
+      // Components
       const PaperPlaneIcon = () => (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -159,8 +155,6 @@
           <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
         </svg>
       );
-
-      // Adiciona a barra de progresso
 
       const Progress = ({ value, className, ...props }) => {
         return (
@@ -179,7 +173,7 @@
       //Barra de progresso da cabeçalho
       const RiskBotProgressBar = ({ progress = 0 }) => {
         return (
-          <div className="bg-gray-600 w-full pb-6 h-20 border-b-4 border-blue-800">
+          <div className="bg-gray-600 w-full pb-6 h-20 border-b-4 border-blue-800 rounded-lg">
             <div className="px-4">
               <div className="flex items-center justify-between mb-2">
                 {/* Logo e Avatar */}
@@ -190,7 +184,7 @@
                       alt="KnowRisk Logo"
                       className="h-12 mt-2 mr-4"
                     />
-                    <div class="w-12 h-12 flex items-center justify-center overflow-hidden">
+                    <div class="w-12 h-12 flex items-center justify-center overflow-hidden rounded-lg">
                       <img
                         src="./Images/RiskBot.png"
                         alt="KnowBot Logo"
@@ -289,7 +283,7 @@
           <div className="text-left text-sm text-gray-600 mt-2 font-bold">
             <p>Data: {formatDate(currentTime)}</p>
             <p>Hora: {formatTime(currentTime)}</p>
-            
+            <p>Tempo decorrido: {formatAnswerTime(lastAnswerTime)}</p>
           </div>
         );
       };
@@ -428,18 +422,37 @@
 
         const [scoresSent, setScoresSent] = useState(false);
 
-        const [messages, setMessages] = useState([
-          {
-            character: "RiskBot",
-            text: "Olá, meu nome é RiskBot. Sou uma IA 🤖 muito esperta! Nossos personagens Ravi, Ana e Cris irão discutir alguns dilemas.",
-            isFirstMessage: true,
-          },
-          {
-            character: "RiskBot",
-            text: "Vamos ajudar Cris, Ana e Ravi a achar os melhores caminhos🚦?? ‼️ Responda aquilo que considerar mais interessante. Não existe certo ou errado.",
-            showButton: true,
-          },
-        ]);
+        const [messages, setMessages] = useState([]);
+        
+        useEffect(() => {
+          // Mostrar typing indicator inicial
+          setIsTyping(true);
+          
+          // Primeira mensagem após 2 segundos
+          setTimeout(() => {
+            setIsTyping(false);
+            setMessages([{
+              character: "RiskBot",
+              text: "Olá, meu nome é RiskBot. Sou uma IA 🤖 muito esperta! Nossos personagens Ravi, Ana e Cris irão discutir alguns dilemas.",
+              isFirstMessage: true,
+            }]);
+            
+            // Typing indicator entre mensagens
+            setIsTyping(true);
+            
+            // Segunda mensagem após mais 2 segundos
+            setTimeout(() => {
+              setIsTyping(false);
+              setMessages(prev => [...prev, {
+                character: "RiskBot",
+                text: "Vamos ajudar Cris, Ana e Ravi a achar os melhores caminhos🚦?? ‼️ Responda aquilo que considerar mais interessante. Não existe certo ou errado.",
+                showButton: true,
+              }]);
+            }, 2000);
+            
+          }, 2000);
+        }, []);
+
         const [showUserForm, setShowUserForm] = useState(false);
         const [userData, setUserData] = useState(initialUserData);
         const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -486,6 +499,7 @@
         };
         //finaliza o handleAnswer
         
+        //handleAnswer
         const handleAnswer = (answer) => {
           addMessage(answer.character, answer.text, true);
           setCompetencyScore((prev) => ({
@@ -585,43 +599,51 @@
             localStorage.setItem("userData", JSON.stringify(userData));
             setShowUserForm(false);
             setConversationStarted(true);
-            addMessage(
-              "RiskBot",
-              <span dangerouslySetInnerHTML={{
-                  __html: `Olá <strong>${userData.name}</strong> da <strong>${userData.company}</strong>! Vamos começar nossa conversa? Ana, Cris e Ravi estão discutindo a respeito da vida deles. Estão falando de vida profissional e pessoal, tudo junto e misturado 🤪.`,
-                }}
-              />,
-            );
+            setIsTyping(true);
+            setTimeout(() => {
+              setIsTyping(false);
+              addMessage(
+                "RiskBot",
+                <span dangerouslySetInnerHTML={{
+                    __html: `Olá <strong>${userData.name}</strong> da <strong>${userData.company}</strong>! Vamos começar nossa conversa? Ana, Cris e Ravi estão discutindo a respeito da vida deles. Estão falando de vida profissional e pessoal, tudo junto e misturado 🤪.`,
+                  }}
+                />,
+              );
+            }, 2000);
           
 
             //inicia a conversa 
             setIsTyping(true);
             setTimeout(() => {
               setIsTyping(false);
-              addMessage(
-                "RiskBot",
-                "Primeiro, essa turma ira começar a discutir a respeito das complexidades do trabalho. 👩🏻‍💻",
-              );
-
-              // Add new dialog for rules
-              addMessage(
-                "RiskBot",
-                React.createElement("div", null,
-                  "Antes de continuarmos, leia as regras do nosso bate-papo:",
-                  React.createElement("button", {
-                    onClick: () => setShowRulesModal(true),
-                    className: "mt-2 block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-                  }, "Ver Regras")
-                )
-              );
-                  //finaliza a mensagem de regras
-
-              setIsTyping(true);
+              setIsTyping(true); // Adiciona typing indicator antes da próxima mensagem
               setTimeout(() => {
                 setIsTyping(false);
-               
-              }, 3000);
-            }, 3000);
+                addMessage(
+                  "RiskBot",
+                  "Primeiro, essa turma ira começar a discutir a respeito das complexidades do trabalho. 👩🏻‍💻",
+                );
+
+                setIsTyping(true);
+                setTimeout(() => {
+                  setIsTyping(false);
+                  // Add new dialog for rules
+                  addMessage(
+                    "RiskBot",
+                    React.createElement("div", null,
+                      "Antes de continuarmos, leia as regras do nosso bate-papo:",
+                      React.createElement("button", {
+                        onClick: () => setShowRulesModal(true),
+                        className: "mt-2 block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                      }, "Ver Regras")
+                    )
+                  );
+                }, 2000);
+              }, 2000);
+            }, 2000);
+              
+
+            
           } catch (error) {
             console.error("Erro ao processar o formulario:", error);
             addMessage(
@@ -681,14 +703,14 @@
                       key={index}
                       className={`flex ${
                         msg.isFirstMessage
-                          ? "justify-start bg-blue-300"
+                          ? "justify-start bg-blue-300 hover:bg-blue-500 rounded-3xl"
                           : msg.character === "RiskBot"
                             ? "justify-end"
                             : "justify-start"
                       }`}
                     >
                       <div
-                        className={`flex items-start space-x-2 rounded-lg p-3 max-w-3/4 ${
+                        className={`flex items-start space-x-2 rounded-3xl p-3 max-w-3/4 ${
                           msg.isFirstMessage
                             ? "border border-blue-300"
                             : msg.responded
@@ -705,7 +727,7 @@
                           {msg.showButton && !buttonClicked && (
                             <button
                               onClick={startConversation}
-                              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors flex items-center"
+                              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-3xl hover:bg-blue-600 transition-colors flex items-center"
                             >
                               Iniciar <PaperPlaneIcon />
                             </button>
@@ -755,7 +777,7 @@
                   {showResult && (
                     <div className="space-y-4 mt-4">
                       <h2 className="text-center font-bold text-xl mb-4">
-                        Resultado
+                        Resultados de seu papo com o RiskBot
                       </h2>
 
 
@@ -799,9 +821,8 @@
                             Mas, em outras, a falta de ousadia faz com que toda
                             essa paz e segurança simplesmente desapareçam. Sabe
                             por quê? O mundo muda, e muda sempre. O que é certo
-                            hoje pode não ser amanhã.</p>
-           
-                            <p><b>Inovar com cautela</b>. Apesar de parecerem
+                            hoje pode não ser amanhã.
+                            <b>Inovar com cautela</b>. Apesar de parecerem
                             contraditórios, esses dois elementos formam a grande
                             dupla que impulsiona a evolução do nosso mundo.
                           </p>
